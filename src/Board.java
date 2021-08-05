@@ -19,6 +19,10 @@ public class Board {
         }
     }
 
+    public int getDimension() {
+        return dimension;
+    }
+
     public char getWinner() {
         return winner;
     }
@@ -27,21 +31,23 @@ public class Board {
         return numMoves < numPossibleMoves && winner == 0;
     }
 
-    public boolean isMovesLeft() {
-        return numMoves < dimension * dimension;
-    }
-
     public boolean spaceAvailable(Position pos) {
         return board[pos.getRow()][pos.getCol()] == '.';
     }
 
     public void makeMove(Position pos, char player) {
+        winner = 0;
         // Have already confirmed that move is legal. Can now make move.
         board[pos.getRow()][pos.getCol()] = player;
         numMoves++;
 
         // Check for winner
         checkRecentForWinner(pos, player);
+    }
+
+    public void undoMove(Position pos) {
+        board[pos.getRow()][pos.getCol()] = '.';
+        numMoves--;
     }
 
     // TODO: make this better, for now it works - also test for draw!
@@ -91,7 +97,7 @@ public class Board {
             }
         }
 
-        if (winner == 0 && lastMove.getRow() == lastMove.getCol() - dimension + 1) { // Backwards diagonal
+        if (winner == 0 && lastMove.getRow() == -1 * (lastMove.getCol() - dimension + 1)) { // Backwards diagonal
             col = 0;
             row = dimension - 1;
             while (col < dimension) {

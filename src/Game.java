@@ -68,7 +68,7 @@ public class Game {
     public static void main(String[] args) {
         dimension = 3;
         board = new Board();
-        bot = new Bot();
+        bot = new Bot(board);
         board.initBoard(dimension);
 
         char currPlayer = PLAYER;
