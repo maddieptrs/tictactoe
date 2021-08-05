@@ -6,7 +6,7 @@ public class Game {
     private static final char BOT = 'O';
     private static final char PLAYER = 'X';
     private Bot bot = new Bot();
-    private char board[][];
+    private char[][] board;
     private boolean gameOn = true;
     private char winner = 0;
 
@@ -25,7 +25,7 @@ public class Game {
     }
 
     public boolean isLegalMove(String move) {
-        // TODO: make this work lol
+        // TODO: make this work
         return true;
     }
 
@@ -42,28 +42,56 @@ public class Game {
         return parseMove(move);
     }
 
-    public void makeMove(int turn) {
+    public void makeMove(char currPlayer) {
         Position move;
-        if (turn == BOT) {
+        if (currPlayer == BOT) {
             move = bot.getMove();
-        } else if (turn == PLAYER) {
+        } else if (currPlayer == PLAYER) {
             move = getPlayerMove();
+        } else {
+            // What to do here?
+            return;
         }
+
+        // Have already confirmed that move is legal. Can now make move.
+        board[move.getRow()][move.getCol()] = currPlayer;
+
+        // Check for winner
+        checkForWinner(move, currPlayer);
     }
 
-    public static void display_game() {
+    public void checkForWinner(Position lastMove, char lastPlayer) {
+        // Need an algorithm to check for winner.
+        // We know that we only have to check if the last move has made someone
+        // a winner.
+        // If game is over, then lastPlayer is winner.
+    }
 
+    public void display_game() {
+        System.out.println(" | 1 | 2 | 3 |");
+        System.out.println("______________");
+
+        for (int row = 0; row < 3; row++) {
+            System.out.print(row + " |");
+            for (int col = 0; col < 3; col++) {
+                System.out.print(board[row][col] + " |");
+            }
+            System.out.println("______________");
+        }
+
+        System.out.println("______________");
     }
 
     public void main(String[] args) {
         initBoard();
 
-        int currPlayer = PLAYER;
+        char currPlayer = PLAYER;
         // Check if winner/can keep playing
         while (gameOn) {
             // Take turn
             makeMove(currPlayer);
             // Change player
+            currPlayer = (currPlayer == PLAYER ? BOT : PLAYER);
         }
 
         if (winner == 0) {
