@@ -9,49 +9,18 @@
  *      other player's piece.
  * - Create a GUI
  *
- * TODO:
- * - Add getters for Game so that cannot access member variables?
  */
 
-import java.awt.desktop.ScreenSleepEvent;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
     static final char BOT = 'O';
     static final char PLAYER = 'X';
-    int dimension = 3;
-    Bot bot = new Bot();
-    char[][] board;
-    boolean gameOn = true;
-    char winner = 0;
+    static int dimension;
+    static Bot bot;
+    static Board board;
 
-    public void initBoard() {
-        board = new char[dimension][dimension];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                board[i][j] = '.';
-            }
-        }
-    }
-
-    public Position parseMove(String move) {
-        String[] pos = move.split(" ");
-        return new Position(Integer.parseInt(pos[0]) - 1, Integer.parseInt(pos[1]) - 1);
-    }
-
-    public boolean isLegalMove(String move) {
-        Position pos = parseMove(move);
-
-        if (pos.getRow() < 0 || pos.getRow() >= dimension ||
-            pos.getCol() < 0 || pos.getCol() >= dimension) {
-            return false;
-        }
-
-        return board[pos.getRow()][pos.getCol()] == '.';
-    }
-
-    public Position getPlayerMove() {
+    public static Position getPlayerMove() {
         Scanner sc = new Scanner(System.in);
         System.out.print("Make a move: ");
         String move = sc.nextLine();
@@ -61,10 +30,21 @@ public class Game {
             move = sc.nextLine();
         }
 
-        return parseMove(move);
+        return Position.parseMove(move);
     }
 
-    public void makeMove(char currPlayer) {
+    public static boolean isLegalMove(String move) {
+        Position pos = Position.parseMove(move);
+
+        if (pos.getRow() < 0 || pos.getRow() >= dimension ||
+                pos.getCol() < 0 || pos.getCol() >= dimension) {
+            return false;
+        }
+
+        return board.spaceAvailable(pos);
+    }
+
+    public static void makeMove(char currPlayer) {
         Position move;
         if (currPlayer == BOT) {
             move = bot.getMove();
@@ -75,96 +55,10 @@ public class Game {
             return;
         }
 
-        // Have already confirmed that move is legal. Can now make move.
-        board[move.getRow()][move.getCol()] = currPlayer;
-
-        // Check for winner
-        checkRecentForWinner(move, currPlayer);
+        board.makeMove(move, currPlayer);
     }
 
-    // TODO: make this better, for now it works - also test for draw!
-    public void checkRecentForWinner(Position lastMove, char lastPlayer) {
-        // Need an algorithm to check for winner.
-        // We know that we only have to check if the last move has made someone
-        // a winner.
-        // If game is over, then lastPlayer is winner.
-
-        // Check row
-        int col = 0;
-        while (col < dimension) {
-            if (board[lastMove.getRow()][col] != lastPlayer) {
-                break;
-            }
-            col++;
-        }
-        if (col == dimension) {
-            gameOn = false;
-            winner = lastPlayer;
-        }
-
-        // Check col
-        int row = 0;
-        while (gameOn && row < dimension) {
-            if (board[row][lastMove.getCol()] != lastPlayer) {
-                break;
-            }
-            row++;
-        }
-        if (row == dimension) {
-            gameOn = false;
-            winner = lastPlayer;
-        }
-
-        // Check diagonal/s
-        if (gameOn && lastMove.getCol() == lastMove.getRow()) { // Forward diagonal
-              row = 0;
-              col = 0;
-              while (row < dimension) {
-                  if (board[row][col] != lastPlayer) {
-                      break;
-                  }
-                  row++;
-                  col++;
-              }
-              if (row == dimension) {
-                  gameOn = false;
-                  winner = lastPlayer;
-              }
-        }
-
-        if (gameOn && lastMove.getRow() == lastMove.getCol() - dimension + 1) { // Backwards diagonal
-            col = 0;
-            row = dimension - 1;
-            while (col < dimension) {
-                if (board[row][col] != lastPlayer) {
-                    break;
-                }
-                col++;
-                row--;
-            }
-            if (col == dimension) {
-                gameOn = false;
-                winner = lastPlayer;
-            }
-        }
-    }
-
-    public void displayGame() {
-        System.out.println("---------------");
-        System.out.println("    1   2   3  ");
-
-        for (int row = 0; row < 3; row++) {
-            System.out.print((row + 1) + " | ");
-            for (int col = 0; col < 3; col++) {
-                System.out.print(board[row][col] + " | ");
-            }
-            System.out.println();
-        }
-
-        System.out.println("---------------");
-    }
-
-    public void introMessage() {
+    public static void introMessage() {
         // Print a message to player
         System.out.println("Tic Tac Toe!");
         System.out.println("When prompted, make a move in the format \"[row] [column]\".");
@@ -172,26 +66,28 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        Game game = new Game();
-        game.initBoard();
+        dimension = 3;
+        board = new Board();
+        bot = new Bot();
+        board.initBoard(dimension);
 
         char currPlayer = PLAYER;
         // Check if winner/can keep playing
-        game.introMessage();
-        while (game.gameOn) {
+        introMessage();
+        while (board.isGameOn()) {
             // Display board
-            game.displayGame();
+            board.displayBoard();
             // Take turn
-            game.makeMove(currPlayer);
+            makeMove(currPlayer);
             // Change player
             currPlayer = (currPlayer == PLAYER ? BOT : PLAYER);
         }
 
-        game.displayGame();
-        if (game.winner == 0) {
+        board.displayBoard();
+        if (board.getWinner() == 0) {
             // Draw
             System.out.println("Game over: draw.");
-        } else if (game.winner == BOT){
+        } else if (board.getWinner() == BOT){
             // Winner is ___
             System.out.println("Game over: you lose!");
         } else {
