@@ -4,6 +4,7 @@
  * Ideas for to improve:
  * - Allow players to chose name/token
  * - Allow players to chose board size
+ * - Let player restart during/after a game
  * - Implement game with different sized pieces to allow players to place over
  *      other player's piece.
  * - Create a GUI
@@ -78,14 +79,74 @@ public class Game {
         board[move.getRow()][move.getCol()] = currPlayer;
 
         // Check for winner
-        checkForWinner(move, currPlayer);
+        checkRecentForWinner(move, currPlayer);
     }
 
-    public void checkForWinner(Position lastMove, char lastPlayer) {
+    // TODO: make this better, for now it works - also test for draw!
+    public void checkRecentForWinner(Position lastMove, char lastPlayer) {
         // Need an algorithm to check for winner.
         // We know that we only have to check if the last move has made someone
         // a winner.
         // If game is over, then lastPlayer is winner.
+
+        // Check row
+        int col = 0;
+        while (col < dimension) {
+            if (board[lastMove.getRow()][col] != lastPlayer) {
+                break;
+            }
+            col++;
+        }
+        if (col == dimension) {
+            gameOn = false;
+            winner = lastPlayer;
+        }
+
+        // Check col
+        int row = 0;
+        while (gameOn && row < dimension) {
+            if (board[row][lastMove.getCol()] != lastPlayer) {
+                break;
+            }
+            row++;
+        }
+        if (row == dimension) {
+            gameOn = false;
+            winner = lastPlayer;
+        }
+
+        // Check diagonal/s
+        if (gameOn && lastMove.getCol() == lastMove.getRow()) { // Forward diagonal
+              row = 0;
+              col = 0;
+              while (row < dimension) {
+                  if (board[row][col] != lastPlayer) {
+                      break;
+                  }
+                  row++;
+                  col++;
+              }
+              if (row == dimension) {
+                  gameOn = false;
+                  winner = lastPlayer;
+              }
+        }
+
+        if (gameOn && lastMove.getRow() == lastMove.getCol() - dimension + 1) { // Backwards diagonal
+            col = 0;
+            row = dimension - 1;
+            while (col < dimension) {
+                if (board[row][col] != lastPlayer) {
+                    break;
+                }
+                col++;
+                row--;
+            }
+            if (col == dimension) {
+                gameOn = false;
+                winner = lastPlayer;
+            }
+        }
     }
 
     public void displayGame() {
@@ -93,7 +154,7 @@ public class Game {
         System.out.println("    1   2   3  ");
 
         for (int row = 0; row < 3; row++) {
-            System.out.print(row + " | ");
+            System.out.print((row + 1) + " | ");
             for (int col = 0; col < 3; col++) {
                 System.out.print(board[row][col] + " | ");
             }
@@ -126,6 +187,7 @@ public class Game {
             currPlayer = (currPlayer == PLAYER ? BOT : PLAYER);
         }
 
+        game.displayGame();
         if (game.winner == 0) {
             // Draw
             System.out.println("Game over: draw.");
