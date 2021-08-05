@@ -3,18 +3,18 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
-    private static final char BOT = 'O';
-    private static final char PLAYER = 'X';
-    private Bot bot = new Bot();
-    private char[][] board;
-    private boolean gameOn = true;
-    private char winner = 0;
+    static final char BOT = 'O';
+    static final char PLAYER = 'X';
+    Bot bot = new Bot();
+    char[][] board;
+    boolean gameOn = true;
+    char winner = 0;
 
     public void initBoard() {
         board = new char[3][3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                board[i][j] = 0;
+                board[i][j] = '.';
             }
         }
     }
@@ -67,37 +67,48 @@ public class Game {
         // If game is over, then lastPlayer is winner.
     }
 
-    public void display_game() {
-        System.out.println(" | 1 | 2 | 3 |");
-        System.out.println("______________");
+    public void displayGame() {
+        System.out.println("---------------");
+        System.out.println("    1   2   3  ");
 
         for (int row = 0; row < 3; row++) {
-            System.out.print(row + " |");
+            System.out.print(row + " | ");
             for (int col = 0; col < 3; col++) {
-                System.out.print(board[row][col] + " |");
+                System.out.print(board[row][col] + " | ");
             }
-            System.out.println("______________");
+            System.out.println();
         }
 
-        System.out.println("______________");
+        System.out.println("---------------");
     }
 
-    public void main(String[] args) {
-        initBoard();
+    public void introMessage() {
+        // Print a message to player
+        System.out.println("Tic Tac Toe!");
+        System.out.println("When prompted, make a move in the format \"[row] [column]\".");
+        System.out.println("For example, to move in row 2 and column 1, \"2 1\".");
+    }
+
+    public static void main(String[] args) {
+        Game game = new Game();
+        game.initBoard();
 
         char currPlayer = PLAYER;
         // Check if winner/can keep playing
-        while (gameOn) {
+        game.introMessage();
+        while (game.gameOn) {
+            // Display board
+            game.displayGame();
             // Take turn
-            makeMove(currPlayer);
+            game.makeMove(currPlayer);
             // Change player
             currPlayer = (currPlayer == PLAYER ? BOT : PLAYER);
         }
 
-        if (winner == 0) {
+        if (game.winner == 0) {
             // Draw
             System.out.println("Game over: draw.");
-        } else if (winner == BOT){
+        } else if (game.winner == BOT){
             // Winner is ___
             System.out.println("Game over: you lose!");
         } else {
