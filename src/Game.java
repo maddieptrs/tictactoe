@@ -1,3 +1,17 @@
+/*
+ * Basic tic tac toe game.
+ *
+ * Ideas for to improve:
+ * - Allow players to chose name/token
+ * - Allow players to chose board size
+ * - Implement game with different sized pieces to allow players to place over
+ *      other player's piece.
+ * - Create a GUI
+ *
+ * TODO:
+ * - Add getters for Game so that cannot access member variables?
+ */
+
 import java.awt.desktop.ScreenSleepEvent;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -5,13 +19,14 @@ import java.util.Scanner;
 public class Game {
     static final char BOT = 'O';
     static final char PLAYER = 'X';
+    int dimension = 3;
     Bot bot = new Bot();
     char[][] board;
     boolean gameOn = true;
     char winner = 0;
 
     public void initBoard() {
-        board = new char[3][3];
+        board = new char[dimension][dimension];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 board[i][j] = '.';
@@ -21,12 +36,18 @@ public class Game {
 
     public Position parseMove(String move) {
         String[] pos = move.split(" ");
-        return new Position(Integer.parseInt(pos[0]), Integer.parseInt(pos[1]));
+        return new Position(Integer.parseInt(pos[0]) - 1, Integer.parseInt(pos[1]) - 1);
     }
 
     public boolean isLegalMove(String move) {
-        // TODO: make this work
-        return true;
+        Position pos = parseMove(move);
+
+        if (pos.getRow() < 0 || pos.getRow() >= dimension ||
+            pos.getCol() < 0 || pos.getCol() >= dimension) {
+            return false;
+        }
+
+        return board[pos.getRow()][pos.getCol()] == '.';
     }
 
     public Position getPlayerMove() {
